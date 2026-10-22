@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astro Clock Card demo</title>
+<style>
+  :root { --primary-text-color: #e1e1e1; }
+  body { margin: 0; padding: 16px; background: #111318; font-family: system-ui, sans-serif; color: #e1e1e1; }
+  body.light { --primary-text-color: #212121; background: #f4f4f4; color: #212121; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  ha-card { display: block; background: var(--ha-card-background, #1c1c1c); border-radius: 12px; }
+  body.light ha-card { background: #ffffff; }
+  h1 { font-size: 18px; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Astro Clock Card — demo with a mocked <code>hass</code> object</h1>
+<p><label><input type="checkbox" id="light"> light theme</label></p>
+<div class="grid" id="grid"></div>
+
+<script>
+  // Minimal stand-in for Home Assistant's <ha-card>.
+  customElements.define('ha-card', class extends HTMLElement {});
+</script>
+<script src="../dist/astro-clock-card.js"></script>
+<script>
+  const hass = {
+    language: 'de',
+    locale: { language: 'de', time_zone: 'server' },
+    config: {
+      latitude: 47.983, longitude: 7.795,
+      time_zone: 'Europe/Berlin', location_name: 'Freiburg',
+    },
+  };
+
+  const configs = [
+    {},
+    { name: 'Tromsø', latitude: 69.65, longitude: 18.96, time_zone: 'Europe/Oslo' },
+    { name: 'Sydney', latitude: -33.87, longitude: 151.21, time_zone: 'Australia/Sydney', language: 'en' },
+    { name: 'Freiburg, zones 10/30/45°', elevation_zones: [10, 30, 45], show_legend: true },
+  ];
+
+  const grid = document.getElementById('grid');
+  for (const cfg of configs) {
+    const card = document.createElement('astro-clock-card');
+    card.setConfig(cfg);
+    card.hass = hass;
+    grid.appendChild(card);
+  }
+
+  if (location.hash === '#light') {
+    document.getElementById('light').checked = true;
+    document.body.classList.add('light');
+  }
+  document.getElementById('light').addEventListener('change', (e) => {
+    document.body.classList.toggle('light', e.target.checked);
+  });
+</script>
+</body>
+</html>
